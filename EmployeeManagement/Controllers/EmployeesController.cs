@@ -60,7 +60,6 @@ namespace EmployeeManagement.Controllers
       [HttpPost]
       public async Task<ActionResult<Employee>> AddEmployee(Employee employee)
       {
-         Console.WriteLine("Inside Controller: AddEmployee");
          if (!ModelState.IsValid)
          {
             return BadRequest(ModelState);

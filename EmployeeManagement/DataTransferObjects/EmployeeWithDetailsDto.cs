@@ -18,6 +18,6 @@ namespace EmployeeManagement.DataTransferObjects
       public DateTime DOB { get; set; }
       public string Phone { get; set; }
       public string Bio { get; set; }
-      public int EmployeeTypeId { get; set; }
+      public EmployeeType EmployeeType { get; set; }
    }
 }

@@ -25,7 +25,9 @@ namespace EmployeeManagement.Repository
 
       public async Task<Employee> GetEmployeeWithDetails(int id)
       {
-         return await _context.Employees.FindAsync(id);
+         return await _context.Employees
+                              .Include(e => e.EmployeeType)
+                              .FirstOrDefaultAsync(e => e.Id == id);
       }
 
       public async Task<Employee> AddEmployee(Employee employee)
