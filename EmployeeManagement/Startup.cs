@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using EmployeeManagement.Contracts;
 using EmployeeManagement.Data;
+using EmployeeManagement.Domain.Handlers;
 using EmployeeManagement.Repository;
+using EmployeeManagement.Repository.MongoDB;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace EmployeeManagement
 {
@@ -36,11 +39,27 @@ namespace EmployeeManagement
              .AllowAnyMethod()
              .AllowAnyHeader());
          });
+
+         services.Configure<EmployeeDatabaseSettings>(
+             Configuration.GetSection(nameof(EmployeeDatabaseSettings)));
+
+         services.AddSingleton<IEmployeeDatabaseSettings>(sp =>
+             sp.GetRequiredService<IOptions<EmployeeDatabaseSettings>>().Value);
+
          services.AddControllers();
          services.AddDbContext<EmployeeContext>(opt => opt.UseSqlServer(
             Configuration.GetConnectionString("EmployeeManagementConnection")   
          ));
-         services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
+
+         services.AddSingleton<IEmployeeTypeHandler, EmployeeTypeHandler>();
+         services.AddSingleton<IEmployeeHandler, EmployeeHandler>();
+
+         //services.AddScoped<IEmployeeRepository<SQLEmployee>, Repository.SQL.EmployeeRepository>();
+         //services.AddScoped<IEmployeeTypeRepository<SQLEmployeeType>, Repository.SQL.EmployeeTypeRepository>();
+
+         services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
+         services.AddSingleton<IEmployeeTypeRepository, EmployeeTypeRepository>();
+
          services.AddAutoMapper(typeof(Startup));
       }
 

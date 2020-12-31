@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EmployeeManagement.Models
+namespace EmployeeManagement.Repository.SQL.Models
 {
-   public class EmployeeType
+   public class SQLEmployeeType
    {
       [Key]
       public int Id { get; set; }
-      
+
       [Required]
       public string Type { get; set; }
    }

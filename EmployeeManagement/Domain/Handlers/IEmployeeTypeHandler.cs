@@ -1,13 +1,12 @@
-﻿using EmployeeManagement.Data;
-using EmployeeManagement.Models;
+﻿using EmployeeManagement.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EmployeeManagement.Contracts
+namespace EmployeeManagement.Domain.Handlers
 {
-   public interface IEmployeeTypeRepository
+   public interface IEmployeeTypeHandler
    {
       Task<IEnumerable<EmployeeType>> GetEmployeeTypes();
       Task<EmployeeType> AddEmployeeType(EmployeeType employeeType);

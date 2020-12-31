@@ -1,13 +1,12 @@
-﻿using EmployeeManagement.Contracts;
-using EmployeeManagement.Data;
-using EmployeeManagement.Models;
+﻿using EmployeeManagement.Data;
+using EmployeeManagement.Repository.SQL.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EmployeeManagement.Repository
+namespace EmployeeManagement.Repository.SQL
 {
    public class EmployeeTypeRepository: IEmployeeTypeRepository
    {
@@ -18,11 +17,11 @@ namespace EmployeeManagement.Repository
          _context = context;
       }
 
-      public async Task<IEnumerable<EmployeeType>> GetEmployeeTypes()
+      public async Task<IEnumerable<SQLEmployeeType>> GetEmployeeTypes()
       {
          return await _context.EmployeeTypes.ToListAsync();
       }
-      public async Task<EmployeeType> AddEmployeeType(EmployeeType employeeType)
+      public async Task<SQLEmployeeType> AddEmployeeType(SQLEmployeeType employeeType)
       {
          _context.EmployeeTypes.Add(employeeType);
          await _context.SaveChangesAsync();

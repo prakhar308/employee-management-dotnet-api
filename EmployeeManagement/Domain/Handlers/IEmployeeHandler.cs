@@ -1,15 +1,15 @@
-﻿using EmployeeManagement.Models;
+﻿using EmployeeManagement.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EmployeeManagement.Contracts
+namespace EmployeeManagement.Domain.Handlers
 {
-   public interface IEmployeeRepository
+   public interface IEmployeeHandler
    {
       Task<IEnumerable<Employee>> GetEmployees();
-      Task<Employee> GetEmployeeWithDetails(int id);
+      Task<Employee> GetEmployeeWithDetails(string id);
       Task<Employee> AddEmployee(Employee employee);
       Task UpdateEmployee(Employee employee);
       Task DeleteEmployee(Employee employee);

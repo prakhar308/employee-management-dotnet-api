@@ -1,6 +1,6 @@
-﻿using EmployeeManagement.Contracts;
-using EmployeeManagement.Data;
-using EmployeeManagement.Models;
+﻿using AutoMapper;
+using EmployeeManagement.Domain.Handlers;
+using EmployeeManagement.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -14,18 +14,20 @@ namespace EmployeeManagement.Controllers
    [ApiController]
    public class EmployeeTypesController: ControllerBase
    {
-      private readonly IRepositoryWrapper _repository;
+      private readonly IEmployeeTypeHandler _employeeTypeHandler;
+      private readonly IMapper _mapper;
 
-      public EmployeeTypesController(IRepositoryWrapper repository)
+      public EmployeeTypesController(IEmployeeTypeHandler employeeTypeHandler, IMapper mapper)
       {
-         _repository = repository;
+         _employeeTypeHandler = employeeTypeHandler;
+         _mapper = mapper;
       }
 
       //GET: api/employee_types
       [HttpGet]
       public async Task<ActionResult<IEnumerable<EmployeeType>>> GetEmployeeTypes()
       {
-         var employeeTypes = await _repository.EmployeeType.GetEmployeeTypes();
+         var employeeTypes = await _employeeTypeHandler.GetEmployeeTypes();
          return Ok(employeeTypes);
       }
 
@@ -33,7 +35,7 @@ namespace EmployeeManagement.Controllers
       [HttpPost]
       public async Task<ActionResult<EmployeeType>> AddEmployeeType(EmployeeType employeeType)
       {
-         await _repository.EmployeeType.AddEmployeeType(employeeType);
+         await _employeeTypeHandler.AddEmployeeType(employeeType);
          return Ok(employeeType);
       }
    }

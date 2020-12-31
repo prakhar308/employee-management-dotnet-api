@@ -1,10 +1,13 @@
 using AutoMapper;
 using EmployeeManagement.Contracts;
+using EmployeeManagement.Contracts.DataTransferObjects;
 using EmployeeManagement.Controllers;
 using EmployeeManagement.Data;
-using EmployeeManagement.DataTransferObjects;
-using EmployeeManagement.Models;
+using EmployeeManagement.Domain.Handlers;
+using EmployeeManagement.Domain.Models;
+using EmployeeManagement.FakeRepositories;
 using EmployeeManagement.Repository;
+using EmployeeManagement.Repository.SQL.Models;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 using System;
@@ -16,22 +19,36 @@ namespace Employee_Management_Tests
 {
    public class Tests
    {
-      IRepositoryWrapper _repository;
+      IEmployeeRepository<SQLEmployee> _employeeRepository;
       IMapper _mapper;
+      IEmployeeHandler _employeeHandler;
       EmployeesController _controller;
 
       [SetUp]
       public void Setup()
-      {
-         _repository = new RepositoryWrapperFake();
+      {  
          var config = new MapperConfiguration(opts =>
          {
+            // DTO to Domain
+            opts.CreateMap<AddEmployeeDto, Employee>();
+
+            // Domain Model to SQL Repo Model
+            opts.CreateMap<Employee, SQLEmployee>();
+            opts.CreateMap<EmployeeType, SQLEmployeeType>();
+
+            // SQL Repo Model to Domain Model
+            opts.CreateMap<SQLEmployee, Employee>();
+            opts.CreateMap<SQLEmployeeType, EmployeeType>();
+
+            // Domain to DTO
             opts.CreateMap<Employee, EmployeeDto>();
             opts.CreateMap<Employee, EmployeeWithDetailsDto>();
          });
-
          _mapper = config.CreateMapper();
-         _controller = new EmployeesController(_repository, _mapper);
+
+         _employeeRepository = new EmployeeRepositoryFake();
+         _employeeHandler = new EmployeeHandler(_employeeRepository, _mapper);
+         _controller = new EmployeesController(_employeeHandler, _mapper);
       }
 
       [Test]
@@ -75,7 +92,7 @@ namespace Employee_Management_Tests
       [Test]
       public async Task AddEmployee_InvalidEmployeePassed_ReturnsBadRequest()
       {
-         var employee = new Employee()
+         var employee = new AddEmployeeDto()
          {
             FirstName = "Jonas",
             LastName = "Mant"
@@ -91,9 +108,8 @@ namespace Employee_Management_Tests
       [Test]
       public async Task AddEmployee_ValidEmployeePassed_ReturnsCreatedResponse()
       {
-         var employee = new Employee()
+         var employee = new AddEmployeeDto()
          {
-            Id = 3,
             FirstName = "Tom",
             LastName = "Hardy",
             Bio = null,
@@ -101,8 +117,7 @@ namespace Employee_Management_Tests
             Email = "Tom@gmail.com",
             Gender = "Male",
             Phone = "623466",
-            EmployeeTypeId = 1,
-            EmployeeType = null
+            EmployeeTypeId = 1
          };
 
          var createdResponse = await _controller.AddEmployee(employee);
@@ -124,7 +139,7 @@ namespace Employee_Management_Tests
          await _controller.DeleteEmployee(1);
          var employees = await _controller.GetEmployees();
          var employeesResult = employees.Result as OkObjectResult;
-         Assert.AreEqual((employeesResult.Value as IEnumerable<EmployeeDto>).Count(), 1);
+         Assert.AreEqual(1, (employeesResult.Value as IEnumerable<EmployeeDto>).Count());
       }
    }
 }

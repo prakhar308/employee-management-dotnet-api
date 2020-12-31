@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using EmployeeManagement.Contracts;
+using EmployeeManagement.Contracts.DataTransferObjects;
 using EmployeeManagement.Data;
-using EmployeeManagement.DataTransferObjects;
-using EmployeeManagement.Models;
+using EmployeeManagement.Domain.Handlers;
+using EmployeeManagement.Domain.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,12 +18,12 @@ namespace EmployeeManagement.Controllers
    [ApiController]
    public class EmployeesController : ControllerBase
    {
-      private readonly IRepositoryWrapper _repository;
+      private readonly IEmployeeHandler _employeeHandler;
       private readonly IMapper _mapper;
 
-      public EmployeesController(IRepositoryWrapper repository, IMapper mapper)
+      public EmployeesController(IEmployeeHandler employeeHandler, IMapper mapper)
       {
-         _repository = repository;
+         _employeeHandler = employeeHandler;
          _mapper = mapper;
       }
 
@@ -32,9 +33,9 @@ namespace EmployeeManagement.Controllers
       {
          try
          {
-            var employees = await _repository.Employee.GetEmployees();
-            var employeesResult = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
-            return Ok(employeesResult);
+            var employees = await _employeeHandler.GetEmployees();
+            var employeeResponse = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+            return Ok(employeeResponse);
          }
          catch (Exception e)
          {
@@ -44,34 +45,34 @@ namespace EmployeeManagement.Controllers
 
       // GET: api/employees/1
       [HttpGet("{id}")]
-      public async Task<ActionResult<EmployeeDto>> GetEmployeeWithDetails(int id)
+      public async Task<ActionResult<EmployeeDto>> GetEmployeeWithDetails(string id)
       {
-         var employee = await _repository.Employee.GetEmployeeWithDetails(id);
+         var employee = await _employeeHandler.GetEmployeeWithDetails(id);
 
          if (employee == null)
          {
             return NotFound();
          }
-         var employeeResult = _mapper.Map<EmployeeWithDetailsDto>(employee);
-         return Ok(employeeResult);
+         var employeeResponse = _mapper.Map<EmployeeWithDetailsDto>(employee);
+         return Ok(employeeResponse);
       }
       
       // POST: api/employees
       [HttpPost]
-      public async Task<ActionResult<Employee>> AddEmployee(Employee employee)
+      public async Task<ActionResult<Employee>> AddEmployee(AddEmployeeDto employee)
       {
          if (!ModelState.IsValid)
          {
             return BadRequest(ModelState);
          }
-
-         await _repository.Employee.AddEmployee(employee);
-         return CreatedAtAction(nameof(GetEmployeeWithDetails), new { id = employee.Id}, employee);
+         var domainEmployee = _mapper.Map<Employee>(employee);
+         var addedEmployee = await _employeeHandler.AddEmployee(domainEmployee);
+         return CreatedAtAction(nameof(GetEmployeeWithDetails), new { id = addedEmployee.Id}, addedEmployee);
       }
       
       // PUT: api/employees/1
       [HttpPut("{id}")]
-      public ActionResult UpdateEmployee(int id, Employee employee)
+      public async Task<ActionResult> UpdateEmployee(string id, Employee employee)
       {
          if (id != employee.Id)
          {
@@ -79,12 +80,12 @@ namespace EmployeeManagement.Controllers
          }
 
          try
-         {
-            _repository.Employee.UpdateEmployee(employee);
+         { 
+            await _employeeHandler.UpdateEmployee(employee);
          }
          catch (DbUpdateConcurrencyException)
          {
-            if (_repository.Employee.GetEmployeeWithDetails(id) == null)
+            if (_employeeHandler.GetEmployeeWithDetails(id) == null)
             {
                return NotFound();
             }
@@ -99,23 +100,15 @@ namespace EmployeeManagement.Controllers
       
       //DELETE: api/employees/2
       [HttpDelete("{id}")]
-      public async Task<ActionResult> DeleteEmployee(int id)
+      public async Task<ActionResult> DeleteEmployee(string id)
       {
-         var employee = await _repository.Employee.GetEmployeeWithDetails(id);
+         var employee = await _employeeHandler.GetEmployeeWithDetails(id);
          if (employee == null)
          {
             return NotFound();
          }
-         await _repository.Employee.DeleteEmployee(employee);
+         await _employeeHandler.DeleteEmployee(employee);
          return NoContent();
-      }
-      
-      // GET: api/employees/type/1
-      [HttpGet("type/{id}")]
-      public async Task<ActionResult<IEnumerable<Employee>>> GetEmployeesByType(int id)
-      {
-         var employees = await _repository.Employee.GetEmployeesByType(id);
-         return Ok(employees);
       }
    }
 }

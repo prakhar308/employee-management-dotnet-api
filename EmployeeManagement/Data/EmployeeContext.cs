@@ -1,4 +1,4 @@
-﻿using EmployeeManagement.Models;
+﻿using EmployeeManagement.Repository.SQL.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ namespace EmployeeManagement.Data
 
       }
 
-      public DbSet<Employee> Employees { get; set; }
-      public DbSet<EmployeeType> EmployeeTypes { get; set; }
+      public DbSet<SQLEmployee> Employees { get; set; }
+      public DbSet<SQLEmployeeType> EmployeeTypes { get; set; }
    }
 }

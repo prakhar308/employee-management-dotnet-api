@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
-using EmployeeManagement.DataTransferObjects;
-using EmployeeManagement.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using EmployeeManagement.Contracts.DataTransferObjects;
+using EmployeeManagement.Domain.Models;
+using EmployeeManagement.Repository.MongoDB.Models;
+using EmployeeManagement.Repository.SQL.Models;
 
 namespace EmployeeManagement.Profiles
 {
@@ -12,6 +10,24 @@ namespace EmployeeManagement.Profiles
    {
       public EmployeeProfile()
       {
+         // DTO to Domain
+         CreateMap<AddEmployeeDto, Employee>();
+
+         // Domain Model to SQL Repo Model
+         CreateMap<Employee, SQLEmployee>();
+         CreateMap<EmployeeType, SQLEmployeeType>();
+         // Domain Model to Mongo Repo Model
+         CreateMap<Employee, MongoEmployee>();
+         CreateMap<EmployeeType, MongoEmployeeType>();
+
+         // SQL Repo Model to Domain Model
+         CreateMap<SQLEmployee, Employee>();
+         CreateMap<SQLEmployeeType, EmployeeType>();
+         // Mongo Repo Model to Domain Model
+         CreateMap<MongoEmployee, Employee>();
+         CreateMap<MongoEmployeeType, EmployeeType>();
+
+         // Domain to DTO
          CreateMap<Employee, EmployeeDto>();
          CreateMap<Employee, EmployeeWithDetailsDto>();
       }
